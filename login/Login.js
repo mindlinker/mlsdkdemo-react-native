@@ -7,25 +7,32 @@
  */
 
 import React, { Component } from 'react';
-import {TouchableOpacity} from 'react-native';
+import { TouchableOpacity, Image } from 'react-native';
 import { TextInput } from 'react-native';
 import {SafeAreaView, StyleSheet, View, Text, StatusBar} from 'react-native';
 
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 
 type Props = {
+  navigation: any
 }
 
 type State = {
   inputValue: string,
+  isLogined: boolean,
 }
 
 export default class LoginView extends Component<Props, State> {
+
+  static navigationOptions = {
+    title: 'Home',
+  };
 
   constructor(props: Props) {
     super(props);
     this.state = {
       inputValue: '',
+      isLogined: false,
     };
   }
 
@@ -34,14 +41,27 @@ export default class LoginView extends Component<Props, State> {
     this.setState({
       inputValue: text,
     });
-  }
+  };
 
   _onPress = () => {
     console.info('onpress login');
-  }
+    this.setState({
+      isLogined: !this.state.isLogined
+    });
+  };
 
-  render() {
-      return <>
+  _onCreatePress = () => {
+    console.info('onpress create');
+    this.props.navigation.navigate('Join');
+  };
+
+  _onJoinPress = () => {
+    console.info('onpress join');
+    this.props.navigation.navigate('Join');
+  };
+
+  _renderLoginView = () => {
+    return <>
         <StatusBar barStyle="dark-content" />
         <SafeAreaView>
           <View style={styles.body}>
@@ -66,11 +86,37 @@ export default class LoginView extends Component<Props, State> {
         </SafeAreaView>
       </>;
   }
+
+  _renderHomeView = () => {
+    return <>
+        <StatusBar barStyle="dark-content" />
+        <SafeAreaView>
+          <View style={styles.homeView}>
+            <TouchableOpacity onPress={this._onCreatePress}>
+              <Image
+                style={styles.createImage} 
+                source={require('./images/createMeeting.png')}
+              />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={this._onJoinPress}>
+              <Image
+                style={styles.joinImage}
+                source={require('./images/joinMeeting.png')}
+              />
+            </TouchableOpacity>
+          </View>
+        </SafeAreaView>
+      </>;
+  };
+
+  render() {
+    const loginView = this.state.isLogined ? this._renderHomeView() : this._renderLoginView()
+    return <>{loginView}</>;
+  }
 };
 
 const styles = StyleSheet.create({
   body: {
-    flex: 1,
     backgroundColor: Colors.white,
     paddingHorizontal: 24,
   },
@@ -95,5 +141,18 @@ const styles = StyleSheet.create({
   loginText: {
     color: Colors.white,
     fontSize: 16,
+  },
+
+  homeView: {
+    flexDirection: 'column',
+  },
+  createImage: {
+    marginTop: 80,
+    width: 360,
+    height: 160,
+  },
+  joinImage: {
+    width: 360,
+    height: 160,
   },
 });
