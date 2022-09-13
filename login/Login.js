@@ -6,21 +6,25 @@
  * @flow
  */
 
+import { sign } from "react-native-pure-jwt";
 import React, { Component } from 'react';
-import { TouchableOpacity, Image } from 'react-native';
-import { TextInput } from 'react-native';
-import {SafeAreaView, StyleSheet, View, Text, StatusBar} from 'react-native';
+import { TouchableOpacity, Image, TextInput, SafeAreaView, StyleSheet, View, Text, StatusBar } from 'react-native';
 
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 
+
+const APPID = '46efdd62-0106-4bba-96ba-57ed8f798c1d';
+const APP_SECRET = 'TSoEZEL6ZFliZanC';
+const OPEN_ID = '12345678';
+
 type Props = {
-  navigation: any
-}
+  navigation: any,
+};
 
 type State = {
-  inputValue: string,
+  nickname: string,
   isLogined: boolean,
-}
+};
 
 export default class LoginView extends Component<Props, State> {
 
@@ -31,7 +35,7 @@ export default class LoginView extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      inputValue: '',
+      nickname: '',
       isLogined: false,
     };
   }
@@ -39,14 +43,33 @@ export default class LoginView extends Component<Props, State> {
   _onChangeText = (text: string) => {
     console.info(`text: ${text}`);
     this.setState({
-      inputValue: text,
+      nickname: text,
     });
   };
 
   _onPress = () => {
     console.info('onpress login');
+    const userInfoObject = {
+      nickname: this.state.nickname,
+      avarat: '',
+      openId: OPEN_ID,
+    };
+    const payload = {
+      appKey: APPID,
+      userInfo: userInfoObject,
+      iat: new Date().getTime(),
+    };
+    sign(payload, APP_SECRET, {
+      alg: 'HS256',
+    })
+      .then(value => {
+        console.info('jwt token = ', value);
+      })
+      .catch(error => {
+        console.info('jwt error = ', error);
+      });
     this.setState({
-      isLogined: !this.state.isLogined
+      isLogined: !this.state.isLogined,
     });
   };
 
@@ -69,7 +92,7 @@ export default class LoginView extends Component<Props, State> {
   
             <TextInput
               onChangeText={this._onChangeText}
-              value={this.state.inputValue}
+              value={this.state.nickname}
               returnKeyType="done"
               underlineColorAndroid={'#D6D6D6'}
               style={styles.inputStyle}
