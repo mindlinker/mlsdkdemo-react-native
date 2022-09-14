@@ -8,14 +8,17 @@
 
 import { sign } from "react-native-pure-jwt";
 import React, { Component } from 'react';
-import { TouchableOpacity, Image, TextInput, SafeAreaView, StyleSheet, View, Text, StatusBar } from 'react-native';
+import { TouchableOpacity, Image, TextInput, SafeAreaView, StyleSheet, View, Text, StatusBar, ToastAndroid } from 'react-native';
 
 import { Colors } from 'react-native/Libraries/NewAppScreen';
+import { getClientToken } from "@mindlinker/react-native-mindlinker-sdk";
+import { authenticate, createMeeting, init } from "../libs/MindlinkerSDK";
 
 
 const APPID = '46efdd62-0106-4bba-96ba-57ed8f798c1d';
 const APP_SECRET = 'TSoEZEL6ZFliZanC';
 const OPEN_ID = '12345678';
+const URL = 'http://apis-press.gz.mindlinker.cn';
 
 type Props = {
   navigation: any,
@@ -38,6 +41,7 @@ export default class LoginView extends Component<Props, State> {
       nickname: '',
       isLogined: false,
     };
+    init(URL, 'sdcard/Log/', true, true)
   }
 
   _onChangeText = (text: string) => {
@@ -51,7 +55,7 @@ export default class LoginView extends Component<Props, State> {
     console.info('onpress login');
     const userInfoObject = {
       nickname: this.state.nickname,
-      avarat: '',
+      avatar: '',
       openId: OPEN_ID,
     };
     const payload = {
@@ -64,18 +68,54 @@ export default class LoginView extends Component<Props, State> {
     })
       .then(value => {
         console.info('jwt token = ', value);
+        getClientToken(URL, value)
+          .then(response => {
+            console.info('get client response = ', response);
+            const accessToken = response.access_token || '';
+            console.info('get client token = ', response.access_token);
+            if (accessToken !== '') {
+              authenticate(accessToken, this.state.nickname, '').then(
+                result => {
+                  console.info('Aaron authToken result= ', result);
+                  if (result.code === 0) {
+                    this.setState({
+                      isLogined: true,
+                    });
+                  } else {
+                    ToastAndroid.showWithGravity(
+                      `登录失败: ${result.code}`,
+                      ToastAndroid.SHORT,
+                      ToastAndroid.CENTER,
+                    );
+                  }
+                },
+              );
+            }
+          })
+          .catch(error => {
+            console.info('get client error = ', error);
+          });
       })
       .catch(error => {
         console.info('jwt error = ', error);
       });
-    this.setState({
-      isLogined: !this.state.isLogined,
-    });
   };
 
   _onCreatePress = () => {
     console.info('onpress create');
-    this.props.navigation.navigate('Join');
+    // this.props.navigation.navigate('Join');
+    createMeeting(this.state.nickname, '', 'test会议').then(result => {
+      console.info('create meeting result:', result);
+      if (result.code === 0) {
+        this.props.navigation.navigate('Video', {roomCode: result.data.roomNo});
+      } else {
+        ToastAndroid.showWithGravity(
+          result.message,
+          ToastAndroid.SHORT,
+          ToastAndroid.CENTER,
+        );
+      }
+    });
   };
 
   _onJoinPress = () => {

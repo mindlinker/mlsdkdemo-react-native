@@ -7,12 +7,13 @@
  */
 
 import React, { Component } from 'react';
-import { TouchableOpacity, Image } from 'react-native';
+import { TouchableOpacity, Image, ToastAndroid } from 'react-native';
 import { Switch } from 'react-native';
 import { TextInput } from 'react-native';
 import {SafeAreaView, StyleSheet, View, Text, StatusBar} from 'react-native';
 
 import { Colors } from 'react-native/Libraries/NewAppScreen';
+import { joinMeeting } from '../libs/MindlinkerSDK';
 
 type Props = {
 }
@@ -64,6 +65,18 @@ export default class JoinView extends Component<Props, State> {
 
   _onPress = () => {
     console.info('onpress join');
+    joinMeeting(this.state.roomCode, this.state.nickName, '', '').then(result => {
+      console.info('join meeting result:', result);
+      if (result.code === 0) {
+        this.props.navigation.navigate('Video', {roomCode: result.data.roomNo});
+      } else {
+        ToastAndroid.showWithGravity(
+            result.message,
+            ToastAndroid.SHORT,
+            ToastAndroid.CENTER,
+        );
+      }
+    });
   };
 
   _renderLoginView = () => {
@@ -86,7 +99,7 @@ export default class JoinView extends Component<Props, State> {
             <View style={styles.containerView}>
               <Text style={styles.roomNoText}>用户名称</Text>
               <TextInput
-                onChangeText={this._onChangeText}
+                onChangeText={this._onNickNameChangeText}
                 value={this.state.nickName}
                 returnKeyType="next"
                 style={styles.inputStyle}
