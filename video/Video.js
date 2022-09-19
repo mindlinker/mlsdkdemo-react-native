@@ -118,7 +118,7 @@ export default class VideoView extends Component<Props, State> {
 
   _onPress = () => {
     console.info('onpress handUp');
-    quitMeeting().then(result => {
+    quitMeeting(true).then(result => {
       console.info('quit meeting result: ', result);
       if (result.code === 0) {
         ToastAndroid.showWithGravity(
@@ -150,7 +150,6 @@ export default class VideoView extends Component<Props, State> {
         <RemoteVideoView
           style={styles.remoteVideoStyle}
           uid={remoteMember.uid}
-          subscribeVideo={remoteMember.uid}
           onTop={false}
         />
       );
@@ -164,7 +163,6 @@ export default class VideoView extends Component<Props, State> {
             hasRemote ? styles.smallLocalVideo : styles.fullLocalVideoStyle
           }
           onTop={hasRemote}
-          subscribeVideo={'localVideo'}
         />
         <TouchableOpacity
           style={styles.handUpContainer}
