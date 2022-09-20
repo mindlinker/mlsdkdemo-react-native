@@ -104,7 +104,7 @@ export default class LoginView extends Component<Props, State> {
   _onCreatePress = () => {
     console.info('onpress create');
     // this.props.navigation.navigate('Join');
-    createMeeting(this.state.nickname, '', 'test会议').then(result => {
+    createMeeting(false, false).then(result => {
       console.info('create meeting result:', result);
       if (result.code === 0) {
         this.props.navigation.navigate('Video', {roomCode: result.data.roomNo});

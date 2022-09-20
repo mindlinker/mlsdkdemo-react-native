@@ -65,7 +65,7 @@ export default class JoinView extends Component<Props, State> {
 
   _onPress = () => {
     console.info('onpress join');
-    joinMeeting(this.state.roomCode, this.state.nickName, '', '').then(result => {
+    joinMeeting(this.state.roomCode, !this.state.isVideoEnable, !this.state.isAuidoEnable).then(result => {
       console.info('join meeting result:', result);
       if (result.code === 0) {
         this.props.navigation.navigate('Video', {roomCode: result.data.roomNo});

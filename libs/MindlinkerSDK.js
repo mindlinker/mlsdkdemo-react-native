@@ -24,23 +24,19 @@ export function authenticate(accessToken, nickName, avatar) {
   return MLApi.authenticate(accessToken, nickName, avatar);
 }
 
-export function createMeeting(nickName, avatar, topic) {
-  console.info(
-    `createMeeting nickName: ${nickName} avatar: ${avatar} topic: ${topic}`,
-  );
-  return MLApi.createMeeting(nickName, avatar, topic);
+export function createMeeting(isMuteVideo, isMuteAudio) {
+  console.info(`createMeeting isMuteVideo: ${isMuteVideo} isMuteAudio: ${isMuteAudio} `,);
+  return MLApi.createMeeting(isMuteVideo, isMuteAudio);
 }
 
-export function joinMeeting(meetingCode, nickName, avatar, password) {
-  console.info(
-    `joinMeeting meetingCode: ${meetingCode} nickName: ${nickName} avatar: ${avatar} password: ${password}`,
-  );
-  return MLApi.joinMeeting(meetingCode, nickName, avatar, password);
+export function joinMeeting(meetingCode, isMuteVideo, isMuteAudio) {
+  console.info(`joinMeeting meetingCode: ${meetingCode} isMuteVideo: ${isMuteVideo} isMuteAudio: ${isMuteAudio} `);
+  return MLApi.joinMeeting(meetingCode, isMuteVideo, isMuteAudio);
 }
 
-export function quitMeeting() {
-  console.info('quitMeeting');
-  return MLApi.quitMeeting();
+export function quitMeeting(dismiss) {
+  console.info(`quitMeeting dismiss: ${dismiss}`);
+  return MLApi.quitMeeting(dismiss);
 }
 
 export function getMembers() {
