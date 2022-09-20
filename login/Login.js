@@ -18,7 +18,7 @@ import { authenticate, createMeeting, init } from "../libs/MindlinkerSDK";
 const APPID = '46efdd62-0106-4bba-96ba-57ed8f798c1d';
 const APP_SECRET = 'TSoEZEL6ZFliZanC';
 const OPEN_ID = '12345678';
-const URL = 'http://apis-press.gz.mindlinker.cn';
+const URL = 'https://apis-pre-pro.mindlinker.cn';
 
 type Props = {
   navigation: any,
