@@ -982,10 +982,10 @@
     "@jridgewell/resolve-uri" "^3.0.3"
     "@jridgewell/sourcemap-codec" "^1.4.10"
 
-"@mindlinker/react-native-mindlinker-sdk@1.0.6-2":
-  version "1.0.6-2"
-  resolved "https://artifactory.gz.cvte.cn/artifactory/api/npm/npm-local/@mindlinker/react-native-mindlinker-sdk/-/@mindlinker/react-native-mindlinker-sdk-1.0.6-2.tgz#159ce38a20530694caad7cd424368ed0f4b9d9ca"
-  integrity sha512-buYTCA7OOLCiMbtjaLfwz5Mmgt9F5h6/iz6hfudR5OTBarvoj+cbZ41iy/0b13A7jzRZsNAb9XXfQToJ1Ykjkg==
+"@mindlinker/react-native-mindlinker-sdk@1.0.6-4":
+  version "1.0.6-4"
+  resolved "https://artifactory.gz.cvte.cn/artifactory/api/npm/npm-local/@mindlinker/react-native-mindlinker-sdk/-/@mindlinker/react-native-mindlinker-sdk-1.0.6-4.tgz#6a58ea21b6de81ab61e7b30ff7f49ffd1de62461"
+  integrity sha512-43Ui6XDZwGlxlztpTNlKt4EP41R+ATL0ki6ihT7TK0hnER1Rp96TN4IZrzqm9yA2Sj92O0xOKs7Y4qbmPwLFgw==
 
 "@react-native-community/cli-debugger-ui@^3.0.0":
   version "3.0.0"
