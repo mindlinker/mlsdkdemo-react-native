@@ -17,7 +17,7 @@
 
 ### 添加依赖
 
-执行完上述步骤后，添加 mindlinker react-native 的SDK以来，执行如下命令：
+执行完上述步骤后，添加 mindlinker react-native 的SDK依赖，执行如下命令：
 `yarn add @mindlinker/react-native-mindlinker-sdk`
 
 至此基本的依赖就添加完成了。
@@ -73,28 +73,28 @@ AuthCode 根据 JWT 协议生成的，后续 [登录授权](#登录授权) 需�
 以下获取的 Jwt Token 是为了方便客户端在测试阶段方便调试使用，正式使用时建议从后台生成后获取
 :::
 
-    dependencies:
-        dart_jsonwebtoken: ^2.4.2 // 快速生成 jwt token 依赖库
+生成 JWT 可添加 react-native-pure-jwt 库进行生成
 
 ```javascript
     // todo: 正式版的话，为了安全起见，appkey 和 appSecret 是保存在后台服务器的，这个 AuthCode 是由后台返回给到客户端的，
 //  客户端这边拿到 authCode 之后传给 MLApi.authenticate，进行账号登录和验证
-class AuthCode {
+
+    import { sign } from "react-native-pure-jwt";
 
     static String getAuthCode(String nickname, String avatar, String openId)  {
-        const userInfoObject = {
-      nickname: this.state.nickname,
-      avatar: '',
-      openId: OPEN_ID,
-    };
-    const payload = {
-      appKey: APPID,
-      userInfo: userInfoObject,
-      iat: new Date().getTime(),
-    };
-    sign(payload, APP_SECRET, {
-      alg: 'HS256',
-    })
+      const userInfoObject = {
+        nickname: nickname,
+        avatar: avatar,
+        openId: openId,
+      };
+      const payload = {
+        appKey: APPID,
+        userInfo: userInfoObject,
+        iat: new Date().getTime(),
+      };
+      sign(payload, APP_SECRET, {
+        alg: 'HS256',
+      })
       .then(value => {
         console.info('jwt token = ', value);
         
@@ -104,47 +104,74 @@ class AuthCode {
       });
     }
 
-}
-
 ```
 
 ## 登录授权
 
 ### 功能介绍
 
-在完成 [初始化 SDK](#初始化sdk) 调用和 [获取 AuthCode](#获取authcode) 后需要进行 sdk 登录授权，授权成功后就可以创建会议和加入会议了，具体调用如下 Api MLApi.authenticate 进行
+在完成 [初始化 SDK](#初始化sdk) 调用和 [获取 AuthCode](#获取authcode) 后需要进行换取对应的 Token 来授权认证，授权成功后就可以创建会议和加入会议了，具体调用如下 Api MLApi.authenticate 进行授权认证。
 
 ```javascript
-const { MLApi } = NativeModules
-MLApi.authenticate(accessToken, nickName, avatar);
+
+  // 获取Token 部分
+  import { getClientToken } from "@mindlinker/react-native-mindlinker-sdk"; 
+
+  getClientToken(URL, value)
+  .then(response => {
+    console.info('get client response = ', response);
+    const accessToken = response.access_token || '';
+    console.info('get client token = ', response.access_token);
+  })
+  .catch(error => {
+    console.info('get client error = ', error);
+  });
+
+  // 认证部分
+  const { MLApi } = NativeModules
+
+  MLApi.authenticate(accessToken, nickName, avatar)
+      .then(result => {
+        console.info('authToken result= ', result);
+        if (result.code === 0) {
+          console.info('authToken success');
+        }
+      }
+
 ```
 
 ### 示例代码
 
 ```javascript
-authenticate(accessToken, this.state.nickname, '').then(
-                result => {
-                  console.info('Aaron authToken result= ', result);
-                  if (result.code === 0) {
-                    this.setState({
-                      isLogined: true,
-                    });
-                  } else {
-                    ToastAndroid.showWithGravity(
-                      `登录失败: ${result.code}`,
-                      ToastAndroid.SHORT,
-                      ToastAndroid.CENTER,
-                    );
-                  }
-                },
-              );
+  import { getClientToken } from "@mindlinker/react-native-mindlinker-sdk"; 
+  const { MLApi } = NativeModules
+
+  getClientToken(URL, value)
+  .then(response => {
+    console.info('get client response = ', response);
+    const accessToken = response.access_token || '';
+    console.info('get client token = ', response.access_token);
+    if (accessToken !== '') {
+      MLApi.authenticate(accessToken, nickName, avatar)
+      .then(result => {
+        console.info('authToken result= ', result);
+        if (result.code === 0) {
+          console.info('authToken success');
+        }
+      }
+    }
+  })
+  .catch(error => {
+    console.info('get client error = ', error);
+  });
+
 ```
 
 ### 参数说明
 
 | 参数名称     | 参数类型   | 是否必填 | 参数描述                 |
 | -------- | ------ | ---- | -------------------- |
-| authCode | String | 是    | AuthCode，根据 jwt 协议生成 |
+| accessToken | String | 是    | 通过请求getClientToken生成返回（需传递authcode） |
 | nickName | String | 是    | 用户名称                 |
 | avatar   | String | 是    | 用户头像                 |
 
@@ -154,7 +181,6 @@ authenticate(accessToken, this.state.nickname, '').then(
 | ----------- | ------ | ----------------- |
 | code        | int    | 返回码 0-成功 -1：未知错误码 |
 | message     | String | 错误信息              |
-| accessToken | String | AccessToken 授权码   |
 
 ## 创建会议
 
@@ -174,7 +200,7 @@ export function createMeeting(isMuteVideo, isMuteAudio) {
 ### 示例代码
 
 ```javascript
-createMeeting(false, false).then(result => {
+MLApi.createMeeting(false, false).then(result => {
       console.info('create meeting result:', result);
       if (result.code === 0) {
         this.props.navigation.navigate('Video', {roomCode: result.data.roomNo});
@@ -232,7 +258,7 @@ export function joinMeeting(meetingCode, isMuteVideo, isMuteAudio) {
 ### 示例代码
 
 ```javascript
-joinMeeting(this.state.roomCode, false, false).then(result => {
+MLApi.joinMeeting(this.state.roomCode, false, false).then(result => {
       console.info('join meeting result:', result);
       if (result.code === 0) {
         this.props.navigation.navigate('Video', {roomCode: result.data.roomNo});
@@ -344,7 +370,7 @@ export function quitMeeting(dismiss) {
 ### 示例代码
 
 ```javascript
-quitMeeting(true).then(result => {
+MLApi.quitMeeting(true).then(result => {
       console.info('quit meeting result: ', result);
       if (result.code === 0) {
         ToastAndroid.showWithGravity(
@@ -396,18 +422,12 @@ export function getMembers() {
 ### 示例代码
 
 ```javascript
-      constructor(props: Props) {
-    super(props);
-    getMembers().then(membersInfo => {
-      console.info('VideoView members:', membersInfo);
-      this.setState({
-        meetingMembers: membersInfo.memberList,
-      });
+  MLApi.getMembers().then(membersInfo => {
+    console.info('VideoView members:', membersInfo);
+    this.setState({
+      meetingMembers: membersInfo.memberList,
     });
-    this.state = {
-      meetingMembers: [],
-    };
-  }
+  });
 
 
 ```
@@ -540,6 +560,13 @@ import {
         );
       }
     })
+  }
+
+  componentWillUnmount() {
+    this.memnerJoinlistener.remove();
+    this.memberLeaveListener.remove();
+    this.meetingEndListener.remove();
+    this.meetingMediaStateChanged.remove();
   }
 
 ```
